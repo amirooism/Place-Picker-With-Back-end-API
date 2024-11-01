@@ -1,10 +1,11 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from "react";
 
-import Places from './components/Places.jsx';
-import Modal from './components/Modal.jsx';
-import DeleteConfirmation from './components/DeleteConfirmation.jsx';
-import logoImg from './assets/logo.png';
-import AvailablePlaces from './components/AvailablePlaces.jsx';
+import Places from "./components/Places.jsx";
+import Modal from "./components/Modal.jsx";
+import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
+import logoImg from "./assets/logo.png";
+import AvailablePlaces from "./components/AvailablePlaces.jsx";
+import { updateUserPlaces } from "../src/http.js";
 
 function App() {
   const selectedPlace = useRef();
@@ -22,7 +23,7 @@ function App() {
     setModalIsOpen(false);
   }
 
-  function handleSelectPlace(selectedPlace) {
+  async function handleSelectPlace(selectedPlace) {
     setUserPlaces((prevPickedPlaces) => {
       if (!prevPickedPlaces) {
         prevPickedPlaces = [];
@@ -32,7 +33,12 @@ function App() {
       }
       return [selectedPlace, ...prevPickedPlaces];
     });
-  }
+
+    try {
+      // because we use asyc form func, be can wrap the  with try catch to prevent potntial errors
+      await updateUserPlaces([selectedPlace, ...userPlaces]); //this function luanch in a oldstate, but with setUserPlace app will reexcute and it dosne not has the last usePlace so we did that
+    } catch (error) {}
+  } // we add awit to the updateUserPlace becuase it take time to get this information but its only work with async function so we give it to the handle function
 
   const handleRemovePlace = useCallback(async function handleRemovePlace() {
     setUserPlaces((prevPickedPlaces) =>
